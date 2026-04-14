@@ -1,0 +1,15 @@
+# Runtime files — personal to each machine, never commit
+~/.claude-optimizer/
+
+# Claude Code local settings — contains machine-specific absolute paths
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Node
+node_modules/
