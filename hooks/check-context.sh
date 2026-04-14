@@ -73,14 +73,14 @@ elif (( PCT >= CTX_WARN )); then
   BAR=$(build_bar "$PCT" "█" "░" 20)
   printf >&2 "\n${YELLOW}${BOLD}┌─────────────────────────────────────────┐${RESET}\n"
   printf >&2 "${YELLOW}${BOLD}│  ⚡ claude-optimizer                    │${RESET}\n"
-  printf >&2 "${YELLOW}     Context: [%-20s] %3d%%     ${RESET}\n" "$BAR" "$PCT"
-  printf >&2 "${YELLOW}     Warn threshold: %d%% — wrapping up soon?${RESET}\n" "$CTX_WARN"
+  printf >&2 "${YELLOW}${BOLD}│  Context: [%-20s] %3d%%     │${RESET}\n" "$BAR" "$PCT"
+  printf >&2 "${YELLOW}${BOLD}│  Warn: %d%% — wrapping up soon?           │${RESET}\n" "$CTX_WARN"
   printf >&2 "${YELLOW}${BOLD}└─────────────────────────────────────────┘${RESET}\n\n"
   exit 0
 
 else
-  # ── GREEN: healthy ────────────────────────────────────────────────────────
+  # ── GREEN: healthy — stdout so it's visible inline in the UI ─────────────
   BAR=$(build_bar "$PCT" "█" "░" 20)
-  printf >&2 "\n${GREEN}│ claude-optimizer  [%-20s] %3d%%${RESET}\n\n" "$BAR" "$PCT"
+  printf "${GREEN}│ claude-optimizer  [%-20s] %3d%%${RESET}\n" "$BAR" "$PCT"
   exit 0
 fi
