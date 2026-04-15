@@ -106,16 +106,17 @@ if $IS_RED; then
 
 elif $IS_YELLOW; then
   BAR=$(build_bar "$PCT" 20)
-  printf >&2 "\n${YELLOW}${BOLD}┌─────────────────────────────────────────┐${RESET}\n"
-  printf >&2 "${YELLOW}${BOLD}│  ⚡ claude-optimizer                    │${RESET}\n"
-  printf >&2 "${YELLOW}${BOLD}│  Context: [%-20s] %3d%%     │${RESET}\n" "$BAR" "$PCT"
-  printf >&2 "${YELLOW}${BOLD}│  Waste:   %.1fx (threshold: %.1fx)        │${RESET}\n" "$WASTE" "$WASTE_ACT"
-  printf >&2 "${YELLOW}${BOLD}│  Wrapping up soon?                      │${RESET}\n"
-  printf >&2 "${YELLOW}${BOLD}└─────────────────────────────────────────┘${RESET}\n\n"
+  { printf "\n${YELLOW}${BOLD}┌─────────────────────────────────────────┐${RESET}\n"
+    printf "${YELLOW}${BOLD}│  ⚡ claude-optimizer                    │${RESET}\n"
+    printf "${YELLOW}${BOLD}│  Context: [%-20s] %3d%%     │${RESET}\n" "$BAR" "$PCT"
+    printf "${YELLOW}${BOLD}│  Waste:   %.1fx (threshold: %.1fx)        │${RESET}\n" "$WASTE" "$WASTE_ACT"
+    printf "${YELLOW}${BOLD}│  Wrapping up soon?                      │${RESET}\n"
+    printf "${YELLOW}${BOLD}└─────────────────────────────────────────┘${RESET}\n\n"
+  } > /dev/tty
   exit 0
 
 else
   BAR=$(build_bar "$PCT" 20)
-  printf >&2 "${GREEN}│ claude-optimizer  [%-20s] %3d%%  %.1fx${RESET}\n" "$BAR" "$PCT" "$WASTE"
+  printf "${GREEN}│ claude-optimizer  [%-20s] %3d%%  %.1fx${RESET}\n" "$BAR" "$PCT" "$WASTE" > /dev/tty
   exit 0
 fi
