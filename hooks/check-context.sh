@@ -116,6 +116,6 @@ elif $IS_YELLOW; then
 
 else
   BAR=$(build_bar "$PCT" 20)
-  printf "${GREEN}│ claude-optimizer  [%-20s] %3d%%  %.1fx${RESET}\n" "$BAR" "$PCT" "$WASTE"
+  printf >&2 "${GREEN}│ claude-optimizer  [%-20s] %3d%%  %.1fx${RESET}\n" "$BAR" "$PCT" "$WASTE"
   exit 0
 fi
