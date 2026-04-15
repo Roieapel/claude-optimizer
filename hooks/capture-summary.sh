@@ -105,6 +105,25 @@ if [[ -z "$SUMMARY" ]]; then
   exit 0
 fi
 
+# ── Merge token stats from state.json ────────────────────────────────────────
+
+STATE_FILE="$STATE_DIR/state.json"
+if [[ -f "$STATE_FILE" ]]; then
+  SUMMARY=$(node -e "
+    const s = JSON.parse(require('fs').readFileSync('$STATE_FILE','utf8'));
+    const d = JSON.parse(process.argv[1]);
+    d.session_tokens = {
+      tokens_used:       s.tokens_used       || 0,
+      tokens_total:      s.tokens_total      || 200000,
+      pct:               s.pct               || 0,
+      waste_factor:      s.waste_factor      || 1.0,
+      first_turn_tokens: s.first_turn_tokens || 0,
+      model:             s.model             || 'unknown',
+    };
+    process.stdout.write(JSON.stringify(d));
+  " "$SUMMARY" 2>/dev/null || echo "$SUMMARY")
+fi
+
 # ── Persist ───────────────────────────────────────────────────────────────────
 
 mkdir -p "$STATE_DIR"

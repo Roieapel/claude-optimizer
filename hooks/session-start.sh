@@ -41,6 +41,14 @@ lines.push('This is a resumed Claude Code session. Context was summarized and cl
 lines.push('at the previous 60% fill threshold. Pick up exactly where you left off.');
 lines.push('');
 
+if (data.session_tokens) {
+  const t = data.session_tokens;
+  const used_k = Math.round(t.tokens_used / 1000);
+  const total_k = Math.round(t.tokens_total / 1000);
+  lines.push(`Previous session ended at: ${t.pct}% fill (${used_k}k / ${total_k}k tokens, ${t.waste_factor}x waste)`);
+  lines.push('');
+}
+
 if (data.summary) {
   lines.push('## Summary');
   lines.push(data.summary);
