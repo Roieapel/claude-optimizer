@@ -87,7 +87,7 @@ for (let i = lines.length - 1; i >= 0; i--) {
     try {
       const json = JSON.parse(match[1]);
       // next_action is the canonical required field from the summarize-session skill
-      if (json.next_action) {
+      if (json.next || json.next_action) {
         process.stdout.write(JSON.stringify(json));
         process.exit(0);
       }

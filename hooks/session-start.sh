@@ -23,74 +23,58 @@ fi
 # ── Format and inject resume block ───────────────────────────────────────────
 
 node - "$SUMMARY_FILE" <<'JSEOF'
-const fs   = require('fs');
-const path = require('path');
+const fs = require('fs');
 
 const summaryPath = process.argv[2];
 let data;
 try {
   data = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
 } catch (err) {
-  // Corrupt or unreadable — skip silently
   process.exit(0);
 }
 
 const lines = [];
 lines.push('<resume_block>');
-lines.push('This is a resumed Claude Code session. Context was summarized and cleared');
-lines.push('at the previous 60% fill threshold. Pick up exactly where you left off.');
-lines.push('');
 
+// Stats header — single compact line
 if (data.session_tokens) {
   const t = data.session_tokens;
-  const used_k = Math.round(t.tokens_used / 1000);
-  const total_k = Math.round(t.tokens_total / 1000);
-  lines.push(`Previous session ended at: ${t.pct}% fill (${used_k}k / ${total_k}k tokens, ${t.waste_factor}x waste)`);
-  lines.push('');
+  lines.push(`Resumed session (${t.pct}% fill, ${t.waste_factor}x waste). Pick up from Next Action below.`);
+} else {
+  lines.push('Resumed session. Pick up from Next Action below.');
 }
+lines.push('');
 
 if (data.summary) {
-  lines.push('## Summary');
   lines.push(data.summary);
   lines.push('');
 }
 
-if (Array.isArray(data.completed_tasks) && data.completed_tasks.length > 0) {
-  lines.push('## Completed Tasks');
-  data.completed_tasks.forEach(t => lines.push(`- ${t}`));
-  lines.push('');
+// Pipe-separated lists — no headers wasted on structure
+const done = data.done || data.completed_tasks;
+if (Array.isArray(done) && done.length > 0) {
+  lines.push('DONE: ' + done.join(' | '));
 }
 
-if (Array.isArray(data.key_decisions) && data.key_decisions.length > 0) {
-  lines.push('## Key Decisions');
-  data.key_decisions.forEach(d => lines.push(`- ${d}`));
-  lines.push('');
+const decided = data.decided || data.key_decisions;
+if (Array.isArray(decided) && decided.length > 0) {
+  lines.push('DECIDED: ' + decided.join(' | '));
 }
 
-if (Array.isArray(data.files_modified) && data.files_modified.length > 0) {
-  lines.push('## Files Modified');
-  data.files_modified.forEach(f => lines.push(`- ${f}`));
-  lines.push('');
-}
-
-if (Array.isArray(data.open_questions) && data.open_questions.length > 0) {
-  lines.push('## Open Questions');
-  data.open_questions.forEach(q => lines.push(`- ${q}`));
-  lines.push('');
-}
-
-if (data.next_action) {
-  lines.push('## Next Action');
-  lines.push(data.next_action);
-  lines.push('');
+// Compat: open_questions folded into next_action display
+const next = data.next || data.next_action;
+if (next) {
+  lines.push('NEXT: ' + next);
 }
 
 if (data.context && Object.keys(data.context).length > 0) {
-  lines.push('## Additional Context');
-  for (const [key, val] of Object.entries(data.context)) {
-    lines.push(`**${key}**: ${val}`);
-  }
-  lines.push('');
+  const pairs = Object.entries(data.context).map(([k, v]) => `${k}: ${v}`);
+  lines.push('GOTCHA: ' + pairs.join(' | '));
+}
+
+// Legacy: files_modified (old schema) — kept for backward compat only
+if (Array.isArray(data.files_modified) && data.files_modified.length > 0) {
+  lines.push('FILES: ' + data.files_modified.join(' | '));
 }
 
 lines.push('</resume_block>');
