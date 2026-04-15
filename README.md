@@ -8,10 +8,12 @@ Claude's attention weakens around 40% context fill and drops measurably at 60%. 
 
 ## What it does
 
-- **Green bar** at every tool call — you always know your fill %
-- **Yellow warning** at 40% — non-blocking, just awareness
-- **Red alert at 60%** — blocks the current tool, prompts you to summarize
+- **Green bar** at every tool call — you always know your fill % and waste factor
+- **Yellow warning** at 40% fill or 2.0x waste — non-blocking, just awareness
+- **Red alert at 60% fill or 3.0x waste** — blocks the current tool, prompts you to summarize
 - **Auto-resume** — the next session injects a structured summary so Claude picks up exactly where it left off
+
+**Waste factor** = current turn tokens / first turn tokens. This matches Claude Code's native compaction metric. Caching can keep raw fill % low even when context has grown 4–5x — waste factor catches that.
 
 No browser. No cloud. No external APIs. Everything runs locally via Claude Code's native hook system.
 
@@ -43,25 +45,27 @@ Once installed, you don't need to do anything — the hooks run automatically.
 
 ### What you'll see
 
-**Normal operation (0–39%):**
+**Normal operation (0–39% fill, <2.0x waste):**
 ```
-│ claude-optimizer  [███░░░░░░░░░░░░░░░░░] 15%
+│ claude-optimizer  [███░░░░░░░░░░░░░░░░░] 15%  1.4x
 ```
 
-**Warning (40–59%):**
+**Warning (40–59% fill or ≥2.0x waste):**
 ```
 ┌─────────────────────────────────────────┐
 │  ⚡ claude-optimizer                    │
-│     Context: [████████████░░░░░░░░] 45%
-│     Warn threshold: 40% — wrapping up soon?
+│  Context: [████████████░░░░░░░░]  45%   │
+│  Waste:   2.3x (threshold: 3.0x)        │
+│  Wrapping up soon?                      │
 └─────────────────────────────────────────┘
 ```
 
-**Action required (60%+):**
+**Action required (≥60% fill or ≥3.0x waste):**
 ```
 ┌─────────────────────────────────────────┐
 │  ⚠  claude-optimizer                    │
-│  Context: [████████████████░░░░] 60%
+│  Context: [████████████████░░░░]  60%   │
+│  Waste:   3.2x (threshold: 3.0x)        │
 │  ACTION REQUIRED — run /summarize-session│
 └─────────────────────────────────────────┘
 ```
@@ -115,6 +119,8 @@ Set these in your shell profile (`~/.zshrc` or `~/.bashrc`) to change thresholds
 | `CTX_WARN` | `40` | Fill % at which yellow warning fires |
 | `CTX_ACT` | `60` | Fill % at which red alert + summarize triggers |
 | `CTX_WINDOW` | `200000` | Total context window size in tokens |
+| `WASTE_WARN` | `2.0` | Waste factor at which yellow warning fires |
+| `WASTE_ACT` | `3.0` | Waste factor at which red alert + summarize triggers |
 
 Example — lower thresholds for a shorter model:
 ```bash
@@ -192,7 +198,7 @@ claude-optimizer/
 
 ## Troubleshooting
 
-**Green bar not showing** — The bar outputs to stderr. In Claude Code it appears in the collapsible "Hook output" section after each tool call.
+**Green bar not showing** — The bar writes directly to `/dev/tty` so it appears inline in your terminal regardless of how Claude Code captures hook output. If it's still not visible, check that the hook is registered: `cat ~/.claude/settings.json | grep check-context`.
 
 **`read-context.js` returned no data** — Normal on first run before any tool calls have been made. The JSONL log is written after turn 1.
 
