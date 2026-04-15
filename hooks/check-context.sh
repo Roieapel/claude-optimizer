@@ -104,19 +104,8 @@ if $IS_RED; then
   printf >&2 "${RED}${BOLD}└─────────────────────────────────────────┘${RESET}\n\n"
   exit 2
 
-elif $IS_YELLOW; then
-  BAR=$(build_bar "$PCT" 20)
-  { printf "\n${YELLOW}${BOLD}┌─────────────────────────────────────────┐${RESET}\n"
-    printf "${YELLOW}${BOLD}│  ⚡ claude-optimizer                    │${RESET}\n"
-    printf "${YELLOW}${BOLD}│  Context: [%-20s] %3d%%     │${RESET}\n" "$BAR" "$PCT"
-    printf "${YELLOW}${BOLD}│  Waste:   %.1fx (threshold: %.1fx)        │${RESET}\n" "$WASTE" "$WASTE_ACT"
-    printf "${YELLOW}${BOLD}│  Wrapping up soon?                      │${RESET}\n"
-    printf "${YELLOW}${BOLD}└─────────────────────────────────────────┘${RESET}\n\n"
-  } > /dev/tty
-  exit 0
-
 else
-  BAR=$(build_bar "$PCT" 20)
-  printf "${GREEN}│ claude-optimizer  [%-20s] %3d%%  %.1fx${RESET}\n" "$BAR" "$PCT" "$WASTE" > /dev/tty
+  # Green / yellow: exit silently — display is handled by show-status.sh (Stop hook)
+  # which fires after Claude's full response, keeping the bar out of tool output.
   exit 0
 fi
