@@ -137,8 +137,9 @@ Three hooks register into `~/.claude/settings.json`:
 
 | Hook | Script | When it runs |
 |------|--------|-------------|
-| `PostToolUse` | `hooks/check-context.sh` | After every tool call — reads fill %, shows bar |
+| `PostToolUse` | `hooks/check-context.sh` | After every tool call — reads fill %, fires red block at threshold |
 | `SessionStart` | `hooks/session-start.sh` | At session open — injects prior summary if one exists |
+| `Stop` | `hooks/show-status.sh` | After each response — displays green/yellow bar cleanly post-output |
 | `Stop` | `hooks/capture-summary.sh` | At session close — saves Claude's summary JSON to disk |
 
 One slash command registers into `~/.claude/commands/`:
@@ -183,8 +184,9 @@ claude-optimizer/
 ├── install.sh                         # One-command setup / uninstall
 ├── README.md
 ├── hooks/
-│   ├── check-context.sh               # PostToolUse — reads fill %, shows bar
+│   ├── check-context.sh               # PostToolUse — reads fill %, fires red block at threshold
 │   ├── session-start.sh               # SessionStart — injects last summary
+│   ├── show-status.sh                 # Stop — displays green/yellow bar after each response
 │   └── capture-summary.sh             # Stop — saves summary JSON on session end
 ├── scripts/
 │   ├── read-context.js                # Parses JSONL logs, writes state.json
